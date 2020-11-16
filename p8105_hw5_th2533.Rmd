@@ -62,7 +62,7 @@ prop.test(
   broom::tidy()
 ```
 
-Try to iterate ........
+Try to iterate 
 
 ```{r}
 results_df = 
@@ -77,7 +77,7 @@ results_df =
 ```
 
 
-
+Create a plot that shows the estimates and CIs for each city 
 ```{r}
 results_df %>% 
   mutate(city_state = fct_reorder(city_state, estimate)) %>% 
@@ -96,7 +96,7 @@ This is a longitudinal study that included a control arm and an experimental arm
 
 First, we import datasets
 
-```{r, error = TRUE}
+```{r, error=FALSE}
 path_df = 
   tibble(
     path = list.files("lda_data"),
@@ -106,7 +106,8 @@ path_df =
   unnest()
 
 
-path_df %>% 
+long_df = 
+  path_df %>% 
   separate(col=path,into=c("arm","id"),sep="_") %>% 
   pivot_longer(
     week_1:week_8,
@@ -115,33 +116,36 @@ path_df %>%
     names_prefix = "week_"
   ) %>% 
     mutate(
-    arm = factor(arm, levels = c("con", "exp"), labels = c("control", "experimental")),
     id = gsub("\\.csv", "",id )
   )
-
+long_df
 ```
 
-Problem 3
+
+Make a spaghetti plot showing observations on each subject over time, and comment on differences between groups.
 
 ```{r}
+long_df %>% 
+  ggplot(aes(x = week, y = value, color = id, group = id)) +
+  geom_line()+
+  facet_grid(~arm) +
+  labs(
+    x = "Week",
+    y = "Value",
+    title = "Values over Weeks between Control vs. Experimental Groups"
+  ) 
 
-sim_mean_sd = function(n=5000, mu=2, sigma = 5) {
-  
-  sim_data = tibble(
-    x = rnorm(n, mean=mu, sd = sigma),
-  )
-  t.test(sim_data)
-}
 
 
-output = vector("list", 5000)
-
-for (i in 1:5000) {
-  output[[i]] = sim_mean_sd(30)
-}
-
-sim_results = bind_rows(output)
 ```
+
+From the two plots, within experimental group the values have an increasing trend and the values are constant in the control group. There are more fluctuations in values over different weeks in control group then experimental group.
+
+
+
+# Problem 3
+
+
 
 
 
