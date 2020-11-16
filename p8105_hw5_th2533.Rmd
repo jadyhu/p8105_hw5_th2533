@@ -90,14 +90,11 @@ results_df %>%
 
 
 
-## Problem 2 ideas ...
+## Problem 2
 
+This is a longitudinal study that included a control arm and an experimental arm. Data for each participant is included in a separate file, and file names include the subject ID and arm.
 
-import one dataset 
-
-```{r}
-data_1 = read_csv("lda_data/con_01.csv")
-```
+First, we import datasets
 
 ```{r, error = TRUE}
 path_df = 
@@ -105,7 +102,47 @@ path_df =
     path = list.files("lda_data"),
   ) %>% 
   mutate(
-    path = str_c("lda_data/", path),
-    data = map(.............))
-read_csv(path_df$path[[1]])
+    data = map(.x = path, ~read_csv(str_c("lda_data/", .x)))) %>% 
+  unnest()
+
+
+path_df %>% 
+  separate(col=path,into=c("arm","id"),sep="_") %>% 
+  pivot_longer(
+    week_1:week_8,
+    names_to = "week",
+    values_to = "value",
+    names_prefix = "week_"
+  ) %>% 
+    mutate(
+    arm = factor(arm, levels = c("con", "exp"), labels = c("control", "experimental")),
+    id = gsub("\\.csv", "",id )
+  )
+
 ```
+
+Problem 3
+
+```{r}
+
+sim_mean_sd = function(n=5000, mu=2, sigma = 5) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean=mu, sd = sigma),
+  )
+  t.test(sim_data)
+}
+
+
+output = vector("list", 5000)
+
+for (i in 1:5000) {
+  output[[i]] = sim_mean_sd(30)
+}
+
+sim_results = bind_rows(output)
+```
+
+
+
+
