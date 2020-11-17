@@ -6,6 +6,7 @@ output: github_document
 
 ```{r setup, include = FALSE}
 library(tidyverse)
+library(patchwork)
 knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .6,
@@ -214,13 +215,18 @@ From the plot, the effect size which is the different between true mean and null
 
 Make a plot showing the average estimate of μ̂  on the y axis and the true value of μ on the x axis.
 ```{r}
-
+all_plot=
 sim_results_mu %>% 
   group_by(mu) %>% 
   summarise(avg_estimate = mean(estimate)) %>% 
-  ggplot(aes(x = mu, y = avg_estimate))+
-  geom_point()+
-  geom_line() 
+  ggplot(aes(x = mu, y = avg_estimate)) +
+  geom_point() +
+  geom_line() +
+    labs(
+    x = "true mean",
+    y = "average estimate",
+    title = "Average Estimate vs True mean"
+  ) 
   
 
 ```
@@ -232,16 +238,20 @@ Make a second plot (or overlay on the first) the average estimate of μ̂  only 
 
 
 ```{r}
-
+subset_plot = 
 sim_results_mu %>% 
   filter(reject == "reject") %>% 
   group_by(mu) %>% 
   summarise(avg_estimate = mean(estimate)) %>% 
   ggplot(aes(x = mu, y = avg_estimate))+
-  geom_point()+
-  geom_line()
-
-
+  geom_point() +
+  geom_line() +
+  labs(
+    x = "true mean",
+    y = "average estimate",
+    title = "Average Estimate vs True mean in those null is rejected"
+  ) 
+all_plot + subset_plot 
 ```
 
 
